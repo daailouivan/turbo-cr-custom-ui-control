@@ -1,0 +1,15 @@
+# node / build artifacts
+node_modules/
+dist/
+*.log
+
+# OS noise
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
+
+# editor
+.idea/
+.vscode/
+*.swp
