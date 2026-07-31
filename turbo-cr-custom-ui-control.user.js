@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         turbo.cr — custom UI control (grid, thumbnails, size + pagination)
 // @namespace    https://github.com/daailouivan/turbo-cr-custom-ui-control
-// @version      1.1.0
-// @description  A custom UI control for turbo.cr album (/a/<id>) pages: replaces the hover-only floating thumbnail with a persistent grid where each card shows the thumbnail above the title, plus size/views/actions. Adds a thumbnail-size slider, a Grid/List toggle, and client-side pagination (per-page selectable) with Prev/Next + page numbers. Live-updates on search/sort.
+// @version      1.2.0
+// @description  A custom UI control for turbo.cr album (/a/<id>) pages: replaces the hover-only floating thumbnail with a persistent grid where each card shows the thumbnail above the title, plus size/views/actions. Adds a thumbnail-size slider, a Grid/List toggle, client-side pagination (per-page selectable, top + bottom pagers), a live item counter by the album title, and a "hover (original)" switch to restore the native table. Live-updates on search/sort.
 // @author       daailouivan
 // @match        https://turbo.cr/a/*
 // @match        https://*.turbo.cr/a/*
