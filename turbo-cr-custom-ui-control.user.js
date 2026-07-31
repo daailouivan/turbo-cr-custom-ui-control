@@ -144,8 +144,10 @@
     bar.querySelector('#tc-size').addEventListener('input', (e) => {
       const v = e.target.value;
       localStorage.setItem(LS_SIZE, v);
-      document.getElementById('tc-size-val').textContent = v + 'px';
-      grid.style.setProperty('--tc-size', v + 'px');
+      const valEl = document.getElementById('tc-size-val');
+      if (valEl) valEl.textContent = v + 'px';
+      const g = document.getElementById('tc-grid');
+      if (g) g.style.setProperty('--tc-size', v + 'px');
     });
     bar.querySelector('#tc-perpage').addEventListener('change', (e) => {
       localStorage.setItem(LS_PERP, e.target.value);
@@ -162,7 +164,8 @@
   }
 
   function applyView() {
-    grid.className = getView();
+    const g = document.getElementById('tc-grid');
+    if (g) g.className = getView();
   }
 
   function pagerHTML(total, perPage, page) {
@@ -273,9 +276,7 @@
     renderGrid();
   }
 
-  // grid reference used by bar listeners
-  let grid = null;
-  function refreshGridRef() { grid = document.getElementById('tc-grid'); }
+  // grid is looked up live via getElementById where needed (see applyView / slider)
 
   // ---- wiring ----
   // Observe ONLY the tbody (rows added/removed by site search/sort) — not the whole doc,
@@ -285,19 +286,18 @@
     if (raf) return;
     raf = requestAnimationFrame(() => {
       raf = 0;
-      if (document.getElementById('fileTbody')) { refreshGridRef(); renderGrid(); }
+      if (document.getElementById('fileTbody')) { renderGrid(); }
     });
   });
 
   // also re-render on the site's search input (filters tbody)
   document.addEventListener('input', (e) => {
     if (e.target && (e.target.id === 'fileSearch' || e.target.placeholder?.includes('filename'))) {
-      refreshGridRef(); renderGrid();
+      renderGrid();
     }
   });
 
   init();
-  refreshGridRef();
   setTimeout(init, 400);
   setTimeout(init, 1200);
 
