@@ -14,9 +14,9 @@
 (function () {
   'use strict';
 
-  const LS_SIZE  = 'tc_grid_size';   // px
-  const LS_VIEW  = 'tc_grid_view';   // 'grid' | 'list'
-  const LS_PERP  = 'tc_grid_perpage';// number | 'all'
+  const LS_SIZE = 'tc_grid_size'; // px
+  const LS_VIEW = 'tc_grid_view'; // 'grid' | 'list'
+  const LS_PERP = 'tc_grid_perpage'; // number | 'all'
 
   const PER_PAGE_OPTS = [12, 24, 48, 96, 'all'];
 
@@ -157,7 +157,7 @@
     bar.querySelectorAll('.seg button').forEach((b) => {
       b.addEventListener('click', () => {
         localStorage.setItem(LS_VIEW, b.getAttribute('data-v'));
-        buildBar();           // refresh toggle highlight
+        buildBar(); // refresh toggle highlight
         applyView();
       });
     });
