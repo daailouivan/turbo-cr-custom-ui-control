@@ -17,6 +17,8 @@
   const LS_SIZE = 'tc_grid_size'; // px
   const LS_VIEW = 'tc_grid_view'; // 'grid' | 'list'
   const LS_PERP = 'tc_grid_perpage'; // number | 'all'
+  const LS_THUMBS = 'tc_grid_thumbs'; // 'on' | 'off'
+  const LS_HOVER = 'tc_grid_hover'; // 'on' (restore original table) | 'off'
 
   const PER_PAGE_OPTS = [12, 24, 48, 96, 'all'];
 
@@ -28,6 +30,8 @@
     const n = parseInt(v, 10);
     return PER_PAGE_OPTS.includes(n) ? n : 24; // default 24 (not "all")
   };
+  const getThumbs = () => localStorage.getItem(LS_THUMBS) !== 'off'; // on by default
+  const getHover = () => localStorage.getItem(LS_HOVER) === 'on'; // off by default
 
   const css = `
 #tc-grid-ui{margin:14px 0;}
@@ -72,6 +76,20 @@
 #tc-pager button:disabled{opacity:.35;cursor:default}
 #tc-pager .info{opacity:.7;font-size:12px;margin:0 4px}
 .tc-card .chk{position:absolute}
+/* top pager mirrors bottom */
+#tc-pager-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:4px 0 2px}
+#tc-pager-top button{min-width:34px;padding:6px 10px;border-radius:8px;border:1px solid #2b6cb0;
+  background:#1a202c;color:#eee;cursor:pointer;font:12px system-ui}
+#tc-pager-top button:hover:not(:disabled){background:#2b6cb0;color:#fff}
+#tc-pager-top button.on{background:#2b6cb0;color:#fff}
+#tc-pager-top button:disabled{opacity:.35;cursor:default}
+#tc-pager-top .info{opacity:.7;font-size:12px;margin:0 4px}
+/* thumbnails off */
+#tc-grid.no-thumbs .tc-card .thumb{display:none}
+/* checkbox labels in the bar */
+#tc-grid-bar .tc-chk{display:inline-flex;align-items:center;gap:5px;opacity:.85;cursor:pointer;user-select:none}
+/* hover-restored mode: our UI is hidden via body class; original table shown by JS */
+body.tc-hover-on #tc-grid-ui{display:none}
 `;
 
   // ---- state ----
@@ -132,10 +150,15 @@
       `<option value="${o}"${String(o) === String(perP) ? ' selected' : ''}>${o === 'all' ? 'All' : o + ' / page'}</option>`
     ).join('');
 
+    const thumbs = getThumbs();
+    const hover = getHover();
+
     bar.innerHTML =
       '<b>turbo.cr grid</b>' +
       `<label>Size <input type="range" min="120" max="420" step="10" value="${size}" id="tc-size">` +
       `<span id="tc-size-val">${size}px</span></label>` +
+      `<label class="tc-chk"><input type="checkbox" id="tc-thumbs"${thumbs ? ' checked' : ''}> Thumbnails</label>` +
+      `<label class="tc-chk"><input type="checkbox" id="tc-hover"${hover ? ' checked' : ''}> Hover (original)</label>` +
       `<span class="grp">Per page <select id="tc-perpage">${perOpts}</select></span>` +
       `<span class="seg"><button data-v="grid" class="${view === 'grid' ? 'on' : ''}">Grid</button>` +
       `<button data-v="list" class="${view === 'list' ? 'on' : ''}">List</button></span>` +
@@ -148,6 +171,14 @@
       if (valEl) valEl.textContent = v + 'px';
       const g = document.getElementById('tc-grid');
       if (g) g.style.setProperty('--tc-size', v + 'px');
+    });
+    bar.querySelector('#tc-thumbs').addEventListener('change', (e) => {
+      localStorage.setItem(LS_THUMBS, e.target.checked ? 'on' : 'off');
+      applyThumbs();
+    });
+    bar.querySelector('#tc-hover').addEventListener('change', (e) => {
+      localStorage.setItem(LS_HOVER, e.target.checked ? 'on' : 'off');
+      applyHover();
     });
     bar.querySelector('#tc-perpage').addEventListener('change', (e) => {
       localStorage.setItem(LS_PERP, e.target.value);
@@ -166,6 +197,19 @@
   function applyView() {
     const g = document.getElementById('tc-grid');
     if (g) g.className = getView();
+  }
+
+  function applyThumbs() {
+    const g = document.getElementById('tc-grid');
+    if (g) g.classList.toggle('no-thumbs', !getThumbs());
+  }
+
+  function applyHover() {
+    const on = getHover();
+    document.body.classList.toggle('tc-hover-on', on);
+    const tb = document.getElementById('fileTbody');
+    const table = tb && tb.closest('table');
+    if (table) table.style.display = on ? '' : 'none';
   }
 
   function pagerHTML(total, perPage, page) {
@@ -201,11 +245,16 @@
     if (sig !== lastRowSig) { lastRowSig = sig; currentPage = 1; }
 
     const hint = document.getElementById('tc-hint');
-    if (hint) hint.textContent = `${total} files · thumbnails lifted from hover`;
+    if (hint) hint.textContent = `${total} files · thumbnails lifted from hover · use top/bottom pager`;
 
     const grid0 = document.getElementById('tc-grid');
     const pager = document.getElementById('tc-pager');
+    const pagerTop = document.getElementById('tc-pager-top');
     if (!grid0 || !pager) return;
+
+    // keep thumbs + hover state in sync on every render
+    applyThumbs();
+    applyHover();
 
     let slice = rows;
     if (perPage !== 'all' && total > perPage) {
@@ -225,8 +274,21 @@
       });
     });
 
-    pager.innerHTML = pagerHTML(total, perPage, currentPage);
-    pager.querySelectorAll('button[data-pg]').forEach((b) => {
+    pager._tcTotal = total; pager._tcPerPage = perPage; pager._tcPage = currentPage;
+    fillPager(pager);
+    if (pagerTop) { pagerTop._tcTotal = total; pagerTop._tcPerPage = perPage; pagerTop._tcPage = currentPage; fillPager(pagerTop); }
+
+    // hide original table so we don't show duplicates (unless hover mode re-shows it)
+    const tbody = document.getElementById('fileTbody');
+    if (tbody && !getHover()) tbody.closest('table').style.display = 'none';
+  }
+
+  function fillPager(el) {
+    const total = el._tcTotal;
+    const perPage = el._tcPerPage;
+    const page = el._tcPage;
+    el.innerHTML = pagerHTML(total, perPage, page);
+    el.querySelectorAll('button[data-pg]').forEach((b) => {
       if (b.disabled) return;
       b.addEventListener('click', () => {
         const v = b.getAttribute('data-pg');
@@ -237,10 +299,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
-
-    // hide original table so we don't show duplicates
-    const tbody = document.getElementById('fileTbody');
-    if (tbody) tbody.closest('table').style.display = 'none';
   }
 
   function init() {
@@ -256,6 +314,9 @@
       const pager = document.createElement('div');
       pager.id = 'tc-pager';
       wrap.appendChild(bar);
+      const pagerTop = document.createElement('div');
+      pagerTop.id = 'tc-pager-top';
+      wrap.appendChild(pagerTop);
       wrap.appendChild(grid);
       wrap.appendChild(pager);
 
@@ -269,6 +330,8 @@
         document.head.appendChild(s);
       }
       buildBar();
+      applyThumbs();
+      applyHover();
       // expose for listeners
       window.__tcGrid = grid;
     }
