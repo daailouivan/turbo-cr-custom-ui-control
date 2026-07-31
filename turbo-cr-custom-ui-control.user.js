@@ -76,6 +76,9 @@
 #tc-pager button:disabled{opacity:.35;cursor:default}
 #tc-pager .info{opacity:.7;font-size:12px;margin:0 4px}
 .tc-card .chk{position:absolute}
+/* title item counter badge (next to album <h1>) */
+#tc-title-count{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:999px;
+  background:#2b6cb0;color:#fff;font:12px/1.4 system-ui;vertical-align:middle;font-weight:600}
 /* top pager mirrors bottom */
 #tc-pager-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:4px 0 2px}
 #tc-pager-top button{min-width:34px;padding:6px 10px;border-radius:8px;border:1px solid #2b6cb0;
@@ -212,6 +215,21 @@ body.tc-hover-on #tc-grid-ui{display:none}
     if (table) table.style.display = on ? '' : 'none';
   }
 
+  // Show a live "N items" badge right after the album <h1> title,
+  // kept in sync with the current (filtered) row count.
+  function applyTitleCount(total) {
+    if (!total) total = getRows().length;
+    const h1 = document.querySelector('main h1') || document.querySelector('h1');
+    if (!h1) return;
+    let badge = document.getElementById('tc-title-count');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.id = 'tc-title-count';
+      h1.insertAdjacentElement('afterend', badge);
+    }
+    badge.textContent = total + (total === 1 ? ' item' : ' items');
+  }
+
   function pagerHTML(total, perPage, page) {
     if (perPage === 'all' || total <= perPage) return '';
     const pages = Math.ceil(total / perPage);
@@ -246,6 +264,7 @@ body.tc-hover-on #tc-grid-ui{display:none}
 
     const hint = document.getElementById('tc-hint');
     if (hint) hint.textContent = `${total} files · thumbnails lifted from hover · use top/bottom pager`;
+    applyTitleCount(total);
 
     const grid0 = document.getElementById('tc-grid');
     const pager = document.getElementById('tc-pager');
