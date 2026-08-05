@@ -1,4 +1,4 @@
-# turbo.cr — custom UI control (userscript)
+# turbo.cr — UI control (userscript)
 
 A [ViolentMonkey](https://violentmonkey.github.io/) / TamperMonkey userscript that reworks
 turbo.cr **album** pages (`https://turbo.cr/a/<id>`) into a persistent grid.
@@ -17,7 +17,7 @@ thumbnail up **above the title** for every entry and lays the list out as a grid
 ## Install
 
 1. Install ViolentMonkey or TamperMonkey.
-2. Import `turbo-cr-custom-ui-control.user.js` (drag it onto the dashboard, or *New > From file*).
+2. Import `turbo-cr-ui-control.user.js` (drag it onto the dashboard, or *New > From file*).
 3. Hard-reload an album page (`/a/<id>`).
 
 `@match`: `https://turbo.cr/a/*` and `https://*.turbo.cr/a/*`.
@@ -33,7 +33,7 @@ thumbnail up **above the title** for every entry and lays the list out as a grid
 
 ## Files
 
-- `turbo-cr-custom-ui-control.user.js` — the script.
+- `turbo-cr-ui-control.user.js` — the script.
 
 ## License
 

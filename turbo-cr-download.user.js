@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         turbo.cr — custom UI control (direct download / source grabber)
-// @namespace    https://github.com/daailouivan/turbo-cr-custom-ui-control
+// @name         turbo.cr — UI control (direct download / source grabber)
+// @namespace    https://github.com/daailouivan/turbo-cr-ui-control
 // @version      1.0.0
 // @description  A custom UI control for turbo.cr: bypasses the "I'm not a robot" gate on /d/ pages and surfaces the real signed CDN URL + original filename on embed/d/v pages. Injects a download bar (direct link, copy URL, blob-save). Album-aware.
 // @author       daailouivan

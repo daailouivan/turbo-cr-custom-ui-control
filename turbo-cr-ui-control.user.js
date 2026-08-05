@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         turbo.cr — custom UI control (grid, thumbnails, size + pagination)
-// @namespace    https://github.com/daailouivan/turbo-cr-custom-ui-control
-// @version      1.2.0
+// @name         turbo.cr — UI control (grid, thumbnails, size + pagination)
+// @namespace    https://github.com/daailouivan/turbo-cr-ui-control
+// @version      1.2.1
 // @description  A custom UI control for turbo.cr album (/a/<id>) pages: replaces the hover-only floating thumbnail with a persistent grid where each card shows the thumbnail above the title, plus size/views/actions. Adds a thumbnail-size slider, a Grid/List toggle, client-side pagination (per-page selectable, top + bottom pagers), a live item counter by the album title, and a "hover (original)" switch to restore the native table. Live-updates on search/sort.
 // @author       daailouivan
 // @match        https://turbo.cr/a/*
@@ -91,8 +91,11 @@
 #tc-grid.no-thumbs .tc-card .thumb{display:none}
 /* checkbox labels in the bar */
 #tc-grid-bar .tc-chk{display:inline-flex;align-items:center;gap:5px;opacity:.85;cursor:pointer;user-select:none}
-/* hover-restored mode: our UI is hidden via body class; original table shown by JS */
-body.tc-hover-on #tc-grid-ui{display:none}
+/* hover-restored mode: hide our grid + pagers (keep the control bar so the
+   toggle stays clickable to switch back), original table shown by JS */
+body.tc-hover-on #tc-grid,
+body.tc-hover-on #tc-pager,
+body.tc-hover-on #tc-pager-top{display:none}
 `;
 
   // ---- state ----
